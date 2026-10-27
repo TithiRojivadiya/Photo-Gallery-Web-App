@@ -1,9 +1,8 @@
-
 import "./App.css";
 import { useEffect, useState, useReducer } from "react";
 import Card from "./Components/Card";
+import useFetchPhotos from "./hooks/useFetchPhotos";
 
-// Manage favourites
 function favouriteReducer(favourites, action) {
   switch (action.type) {
     case "TOGGLE":
@@ -17,11 +16,9 @@ function favouriteReducer(favourites, action) {
 }
 
 function App() {
-  const [data, setdata] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { photos, loading, error } = useFetchPhotos();
   const [search, setSearch] = useState("");
 
-  // Load favourites from localStorage
   const [favourites, dispatch] = useReducer(
     favouriteReducer,
     [],
@@ -34,22 +31,9 @@ function App() {
     }
   );
 
-  // Save favourites whenever they change
   useEffect(() => {
     localStorage.setItem("favourites", JSON.stringify(favourites));
   }, [favourites]);
-
-  // Fetch photos
-  useEffect(() => {
-    fetch("https://picsum.photos/v2/list?limit=30")
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch photos");
-        return res.json();
-      })
-      .then((data) => setdata(data))
-      .catch((err) => console.error(err))
-      .finally(() => setLoading(false));
-  }, []);
 
   if (loading) {
     return (
@@ -59,7 +43,11 @@ function App() {
     );
   }
 
-  const filteredData = data?.filter((photo) =>
+  if (error) {
+    return <p className="p-6 text-red-600">Error: {error}</p>;
+  }
+
+  const filteredData = photos?.filter((photo) =>
     photo.author.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -98,7 +86,7 @@ function App() {
         </div>
       ) : (
         <p className="text-gray-600">
-          {data ? "No photos found!" : "No data available!"}
+          {photos ? "No photos found!" : "No data available!"}
         </p>
       )}
     </div>
