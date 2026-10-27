@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 
 function useFetchPhotos() {
@@ -12,11 +11,18 @@ function useFetchPhotos() {
         if (!res.ok) {
           throw new Error("Failed to fetch photos");
         }
+
         return res.json();
       })
-      .then((data) => setPhotos(data))
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
+      .then((data) => {
+        setPhotos(data);
+      })
+      .catch((err) => {
+        setError(err.message);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, []);
 
   return { photos, loading, error };
