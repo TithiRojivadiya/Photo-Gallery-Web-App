@@ -1,5 +1,6 @@
 import './App.css'
 import { useEffect, useState } from 'react'
+import Card from './Components/Card'
 
 function App() {
   
@@ -25,20 +26,26 @@ function App() {
 
   return (
     <>
+        <div className="min-h-screen bg-gray-100 p-6">
+          <h1 className="mb-6 text-3xl font-bold text-gray-800">
+            Photo Gallery
+          </h1>
 
-      <div>
-        {data ? (
-          data.map(photo => (
-            <div key={photo.id}>
-              <h3>{photo.author}</h3>
-              <img src={photo.download_url} alt={photo.author} width="200" />
-              <a href={photo.download_url}>Download</a>
+          {data && data.length > 0 ? (
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+              {data.map(photo => (
+                <Card
+                  key={photo.id}
+                  author={photo.author}
+                  download_url={photo.download_url}
+                />
+              ))}
             </div>
-          ))
-        ) : (
-          <h1>Something Went wrong !!! No data Available</h1>
-        )}
-      </div>
+          ) : (
+            <h1>Something went wrong! No data available.</h1>
+          )}
+
+        </div>
       
     </>
   )
