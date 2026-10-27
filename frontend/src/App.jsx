@@ -1,16 +1,51 @@
 
 import "./App.css";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useReducer } from "react";
 import Card from "./Components/Card";
+
+// Manage favourites
+function favouriteReducer(favourites, action) {
+  switch (action.type) {
+    case "TOGGLE":
+      return favourites.some((photo) => photo.id === action.photo.id)
+        ? favourites.filter((photo) => photo.id !== action.photo.id)
+        : [...favourites, action.photo];
+
+    default:
+      return favourites;
+  }
+}
 
 function App() {
   const [data, setdata] = useState(null);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
 
+  // Load favourites from localStorage
+  const [favourites, dispatch] = useReducer(
+    favouriteReducer,
+    [],
+    () => {
+      try {
+        return JSON.parse(localStorage.getItem("favourites")) || [];
+      } catch {
+        return [];
+      }
+    }
+  );
+
+  // Save favourites whenever they change
+  useEffect(() => {
+    localStorage.setItem("favourites", JSON.stringify(favourites));
+  }, [favourites]);
+
+  // Fetch photos
   useEffect(() => {
     fetch("https://picsum.photos/v2/list?limit=30")
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch photos");
+        return res.json();
+      })
       .then((data) => setdata(data))
       .catch((err) => console.error(err))
       .finally(() => setLoading(false));
@@ -42,13 +77,22 @@ function App() {
         className="mb-6 w-full rounded-lg border border-gray-300 bg-white p-3"
       />
 
+      <p className="mb-4 text-gray-700">
+        Favourites: {favourites.length}
+      </p>
+
       {filteredData && filteredData.length > 0 ? (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
           {filteredData.map((photo) => (
             <Card
               key={photo.id}
-              author={photo.author}
-              download_url={photo.download_url}
+              {...photo}
+              isFavourite={favourites.some(
+                (fav) => fav.id === photo.id
+              )}
+              onToggleFavourite={() =>
+                dispatch({ type: "TOGGLE", photo })
+              }
             />
           ))}
         </div>

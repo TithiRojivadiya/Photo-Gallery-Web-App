@@ -1,9 +1,6 @@
-
-import React from "react";
-
 function Card(props) {
   return (
-    <div className="overflow-hidden rounded-lg bg-white shadow-md">
+    <div className="overflow-hidden rounded-xl bg-white shadow-md">
       <img
         src={props.download_url}
         alt={props.author}
@@ -15,8 +12,20 @@ function Card(props) {
           {props.author}
         </h3>
 
-        <button className="text-2xl text-gray-400 hover:text-red-500">
-          ♥
+        <button
+          onClick={props.onToggleFavourite}
+          aria-label={
+            props.isFavourite
+              ? "Remove from favourites"
+              : "Add to favourites"
+          }
+          className={`text-2xl ${
+            props.isFavourite
+              ? "text-red-500"
+              : "text-gray-400 hover:text-red-500"
+          }`}
+        >
+          {props.isFavourite ? "♥" : "♡"}
         </button>
       </div>
     </div>
